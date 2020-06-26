@@ -1,0 +1,14 @@
+select
+
+p.state_code
+, count(distinct p.person_id) as targets
+, count(distinct (case when ccmyv.contacts_contact_id is not null then p.person_id end)) as attempts
+
+from `democrats.analytics_last47.person` p
+left join vansync.contacts_contacts_myv ccmyv on ccmyv.myv_van_id = p.myv_van_id and ccmyv.state_code = p.state_code
+left join `hawkfish-bloomberg20-states.National.conversion_score` conv on conv.myv_van_id = p.myv_van_id and conv.state_code = p.state_code
+left join `hawkfish-bloomberg20-states.National.mb_support` mb on mb.myv_van_id = p.myv_van_id and mb.state_code = p.state_code
+
+where conv.conversion_score >= 70
+
+group by 1

@@ -1,0 +1,31 @@
+drop table if exists sbx_neem.event_signups;
+create table sbx_neem.event_signups as
+
+select
+
+es.state_code
+, es.myc_van_id
+, es.event_id
+, e.event_name
+, es.event_signup_id
+, es.event_shift_id
+, es.event_role_id
+, er.event_role_id
+, er.event_role_name
+, ess.event_status_id
+, esref.event_status_name
+, e.date_offset_begin as event_date
+, ess.datetime_created
+, ess.datetime_modified
+, e.event_type_id
+, et.event_type_name
+, RANK () OVER (PARTITION BY es.event_signup_id ORDER BY ess.datetime_modified DESC) as most_recent_update
+
+from vansync.event_signups es
+left join vansync.events e on e.event_id = es.event_id and e.state_code = es.state_code
+left join vansync.event_signups_statuses ess on ess.event_signup_id = es.event_signup_id and ess.state_code = es.state_code
+left join vansync.event_roles er on er.event_role_id = es.event_role_id
+left join vansync.event_types et on et.event_type_id = e.event_type_id
+left join vansync.event_statuses esref on esref.event_status_id = ess.event_status_id
+
+order by 1,4,12,17

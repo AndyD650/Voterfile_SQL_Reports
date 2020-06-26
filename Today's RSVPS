@@ -1,0 +1,8 @@
+select
+
+sum(ea.rsvp) as RSVPs
+
+from vansync_derived.event_attendees ea
+left join vansync.events e on ea.event_id = e.event_id
+
+where cast(e.date_offset_begin as date) = cast(current_timestamp as date)

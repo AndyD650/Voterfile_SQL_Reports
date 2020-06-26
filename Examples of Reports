@@ -1,0 +1,180 @@
+--MyC Calls
+
+select
+
+distinct ccmyc.state_code
+, week.week
+, 'MyC_Calls' as Metric
+, count(distinct ccmyc.contacts_contact_id) as Count
+
+from vansync.contacts_contacts_myc ccmyc
+left join sbx_neem.weeknum week on cast(week.date as date) = cast(ccmyc.datetime_canvassed as date)
+
+where ccmyc.contact_type_id in ('1')
+
+group by 1,2
+
+union all
+
+--MyV Calls
+
+select
+
+distinct ccmyv.state_code
+, week.week
+, 'MyV_Calls' as Metric
+, count(distinct ccmyv.contacts_contact_id) as Count
+
+from vansync.contacts_contacts_myv ccmyv
+left join sbx_neem.weeknum week on cast(week.date as date) = cast(ccmyv.datetime_canvassed as date)
+
+where ccmyv.contact_type_id in ('1')
+
+group by 1,2
+
+union all
+
+--Doors
+
+select
+
+distinct ccmyv.state_code
+, week.week
+, 'Doors_Knocked' as Metric
+, count(distinct ccmyv.contacts_contact_id) as Count
+
+from vansync.contacts_contacts_myv ccmyv
+left join sbx_neem.weeknum week on cast(week.date as date) = cast(ccmyv.datetime_canvassed as date)
+
+where ccmyv.contact_type_id in ('2')
+
+group by 1,2
+
+union all
+
+--SMS
+
+select
+
+distinct ccmyv.state_code
+, week.week
+, 'SMS' as Metric
+, count(distinct ccmyv.contacts_contact_id) as Count
+
+from vansync.contacts_contacts_myv ccmyv
+left join sbx_neem.weeknum week on cast(week.date as date) = cast(ccmyv.datetime_canvassed as date)
+
+where ccmyv.contact_type_id in ('37')
+
+group by 1,2
+
+union all
+
+--ID's MyV
+
+select
+
+distinct csr.state_code
+, week.week
+, 'MyV_Bloomberg_IDs' as Metric
+, count(distinct csr.myv_van_id) as Count
+
+from vansync.contacts_survey_responses_myv csr
+left join sbx_neem.weeknum week on cast(week.date as date) = cast(csr.datetime_canvassed as date)
+
+where csr.survey_response_id in ('1521814','1521815') --Strong Bloomberg, Lean Bloomberg
+
+group by 1,2
+
+union all
+
+--ID's MyC
+
+select
+
+distinct csrmyc.state_code
+, week.week
+, 'MyC_Bloomberg_IDs' as Metric
+, count(distinct cm.myv_van_id) as Count
+
+from vansync.contacts_survey_responses_myc csrmyc
+left join sbx_neem.weeknum week on cast(week.date as date) = cast(csrmyc.datetime_canvassed as date)
+left join vansync_derived.contacts_myc cm on csrmyc.contacts_contact_id = cm.contacts_contact_id
+
+where csrmyc.survey_response_id in ('1521814','1521815') --Strong Bloomberg, Lean Bloomberg
+
+group by 1,2
+
+union all
+
+--Events
+
+select
+
+distinct e.state_code
+, week.week
+, 'Events' as Metric
+, count(distinct e.event_id) as Count
+
+from vansync.events e
+left join sbx_neem.weeknum week on cast(week.date as date) = cast(e.date_offset_begin as date)
+
+where cast(e.date_offset_begin as date) <= cast(CURRENT_TIMESTAMP() as date)
+and e.event_id in 
+		(select 
+
+		e.event_id
+
+		from vansync.events e
+		left join vansync.event_signups es on es.event_id = e.event_id
+		left join vansync.event_signups_statuses ess on es.event_signup_id = ess.event_signup_id
+
+		where ess.event_status_id in ('15','2'))
+
+group by 1,2
+
+union all
+
+--Event Attendees
+
+select
+
+distinct ess.state_code
+, week.week
+, 'Event_Attendees' as Metric
+, count(distinct ess.event_signup_id) as Count
+
+from vansync.events e
+left join vansync.event_signups es on e.event_id = es.event_id
+left join vansync.event_signups_statuses ess on es.event_signup_id = ess.event_signup_id
+left join sbx_neem.weeknum week on cast(week.date as date) = cast(e.date_offset_begin as date)
+
+where ess.event_status_id in ('2','15')
+
+group by 1,2
+
+union all
+
+--Unique Vols
+
+select
+
+distinct es.state_code
+, week.week
+, 'Unique_Vols' as Metric
+, count(distinct es.myc_van_id) as Count
+
+from vansync.events e
+left join vansync.event_signups es on e.event_id = es.event_id
+left join vansync.event_signups_statuses ess on es.event_signup_id = ess.event_signup_id
+left join sbx_neem.weeknum week on cast(week.date as date) = cast(e.date_offset_begin as date)
+
+where ess.event_status_id in ('2','15')
+and e.event_type_id in ('323869','322508','322503')
+
+group by 1,2
+order by 3,1,2
+
+
+
+

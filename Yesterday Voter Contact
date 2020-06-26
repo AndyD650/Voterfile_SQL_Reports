@@ -1,0 +1,5 @@
+select
+
+count(distinct (case when cc.contact_type_id in ('2','37','1','81','36') and cast(cc.datetime_canvassed as date) = date_add(cast(current_timestamp() as date),interval -1 day) then cc.contacts_contact_id end)) as attempts --walk, sms, phone, paid call, paid walk
+
+from (select * from vansync.contacts_contacts_myv union all select * from vansync.contacts_contacts_myc) cc
