@@ -1,0 +1,86 @@
+select
+
+csrmyc.state_code
+, 'MyC_YardSign' as database
+, 'API' as inputtype
+, csrmyc.input_type_id
+, it.input_type_name
+, sum(case when csrmyc.survey_response_id in ('1530304') then 1 else 0 end) as requested
+, sum(case when csrmyc.survey_response_id in ('1530305') then 1 else 0 end) as received
+, sum(case when csrmyc.survey_response_id in ('1530306') then 1 else 0 end) as canceled
+
+from vansync.contacts_survey_responses_myc csrmyc
+left join vansync.contacts_contacts_myc ccmyc on ccmyc.contacts_contact_id = csrmyc.contacts_contact_id and ccmyc.state_code = csrmyc.state_code
+left join `democrats.vansync_ref.input_types` it on it.input_type_id = csrmyc.input_type_id
+
+where csrmyc.survey_question_id in ('371934')
+and ccmyc.input_type_id in ('11')
+
+group by 1,2,3,4,5
+
+union all
+
+select
+
+csrmyc.state_code
+, 'MyC_YardSign' as database
+, 'Non_API' as inputtype
+, csrmyc.input_type_id
+, it.input_type_name
+, sum(case when csrmyc.survey_response_id in ('1530304') then 1 else 0 end) as requested
+, sum(case when csrmyc.survey_response_id in ('1530305') then 1 else 0 end) as received
+, sum(case when csrmyc.survey_response_id in ('1530306') then 1 else 0 end) as canceled
+
+from vansync.contacts_survey_responses_myc csrmyc
+left join vansync.contacts_contacts_myc ccmyc on ccmyc.contacts_contact_id = csrmyc.contacts_contact_id and ccmyc.state_code = csrmyc.state_code
+left join `democrats.vansync_ref.input_types` it on it.input_type_id = csrmyc.input_type_id
+
+where csrmyc.survey_question_id in ('371934')
+and ccmyc.input_type_id not in ('11')
+
+group by 1,2,3,4,5
+
+union all
+
+select
+
+csrmyv.state_code
+, 'MyV_YardSign' as database
+, 'API' as inputtype
+, csrmyv.input_type_id
+, it.input_type_name
+, sum(case when csrmyv.survey_response_id in ('1530304') then 1 else 0 end) as requested
+, sum(case when csrmyv.survey_response_id in ('1530305') then 1 else 0 end) as received
+, sum(case when csrmyv.survey_response_id in ('1530306') then 1 else 0 end) as canceled
+
+from vansync.contacts_survey_responses_myv csrmyv
+left join vansync.contacts_contacts_myv ccmyv on ccmyv.contacts_contact_id = csrmyv.contacts_contact_id and ccmyv.state_code = csrmyv.state_code
+left join `democrats.vansync_ref.input_types` it on it.input_type_id = csrmyv.input_type_id
+
+where csrmyv.survey_question_id in ('371934')
+and ccmyv.input_type_id in ('11')
+
+group by 1,2,3,4,5
+
+union all
+
+select
+
+csrmyv.state_code
+, 'MyV_YardSign' as database
+, 'Non_API' as inputtype
+, csrmyv.input_type_id
+, it.input_type_name
+, sum(case when csrmyv.survey_response_id in ('1530304') then 1 else 0 end) as requested
+, sum(case when csrmyv.survey_response_id in ('1530305') then 1 else 0 end) as received
+, sum(case when csrmyv.survey_response_id in ('1530306') then 1 else 0 end) as canceled
+
+from vansync.contacts_survey_responses_myv csrmyv
+left join vansync.contacts_contacts_myv ccmyv on ccmyv.contacts_contact_id = csrmyv.contacts_contact_id and ccmyv.state_code = csrmyv.state_code
+left join `democrats.vansync_ref.input_types` it on it.input_type_id = csrmyv.input_type_id
+
+where csrmyv.survey_question_id in ('371934')
+and ccmyv.input_type_id not in ('11')
+
+group by 1,2,3,4,5
+order by 1,2,3,4,5
